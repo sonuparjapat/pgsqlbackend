@@ -25,6 +25,7 @@ authRoutes.post("/register",async(req,res)=>{
         return res.status(406).json({status:406,errors})
     }
 
+    // validating email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return res.status(400).json({ error: "Invalid email format." });
@@ -41,9 +42,9 @@ authRoutes.post("/register",async(req,res)=>{
 const existing=await pool.query("SELECT name FROM users WHERE email=$1 OR phone =$2",[email,phone])
 
 if(existing?.rows?.length>0){
-    return res.status(403).json({msg:"This user is Already exists",status:403})
+    return res.status(403).json({msg:"This user is Already exists with provided email id or phone number",status:403})
 }
-    console.log("NOt exists")
+    // console.log("NOt exists")
      // Hash the password
      const saltRounds = 10;
      const hashedPassword = await bcrypt.hash(password, saltRounds);
@@ -57,6 +58,7 @@ if(existing?.rows?.length>0){
 })
 authRoutes.post("/login",async(req,res)=>{
     // console.log(process.env.JWT_SECRET)
+
     const {email,password}=req.body
     // Check if email & password provided
     if (!email || !password) {
@@ -65,7 +67,7 @@ authRoutes.post("/login",async(req,res)=>{
     try{
 const userdata=await pool.query("SELECT * FROM users WHERE email=$1",[email])
 // console.log(userdata,"userdata")
-if(userdata?.rows?.length>=0){
+if(userdata?.rows?.length>0){
     const match = await bcrypt.compare(password, userdata?.rows[0].password);
 const user=userdata?.rows[0]
     if(match) {
