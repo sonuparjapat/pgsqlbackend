@@ -52,7 +52,7 @@ return res?.status(200).json({status:200,msg:"Deleted Successfully",users:alluse
 // To update user
 userRouter.put("/update/:id", async (req, res) => {
   const { id } = req.params;
-  const { name, profession_id, country_id } = req.body;
+ 
 
   try {
     if (!id) {
@@ -62,6 +62,8 @@ userRouter.put("/update/:id", async (req, res) => {
       });
     }
 
+  if(req.body){
+ const { name, profession_id, country_id } = req.body;
     const data = await pool.query("SELECT * FROM users WHERE id=$1", [id]);
 
     if (data?.rows?.length == 0) {
@@ -88,7 +90,9 @@ delete updateduserdata["password"]
       status: 200,
       msg: "Updated Successfully",
       updatedUser: updateduserdata,
-    });
+    });}else{
+      res?.status(400)?.json({msg:"Please provide things to Update"})
+    }
   } catch (err) {
     console.error("Update Error: ", err.message);
     return res.status(500).json({
